@@ -181,3 +181,127 @@ public class Main {
         }
     }
 }
+
+//atm
+import java.util.Scanner;
+
+interface OperasiATM {
+    void cekSaldo();
+    void penarikan();
+    void transfer();
+    void tambahSaldo();
+}
+
+class Saldo {
+    private double saldo;
+
+    public Saldo(double saldoAwal) {
+        this.saldo = saldoAwal;
+    }
+
+    public double getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+}
+
+abstract class Transaksi implements OperasiATM {
+    protected Saldo saldo;
+
+    public Transaksi(Saldo saldo) {
+        this.saldo = saldo;
+    }
+
+    @Override
+    public void cekSaldo() {
+        System.out.println("Saldo Anda: " + saldo.getSaldo());
+    }
+
+    @Override
+    public void penarikan() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Masukkan jumlah penarikan: ");
+        double jumlah = scanner.nextDouble();
+
+        if (jumlah > saldo.getSaldo()) {
+            System.out.println("Saldo tidak mencukupi.");
+        } else {
+            saldo.setSaldo(saldo.getSaldo() - jumlah);
+            System.out.println("Penarikan berhasil. Saldo Anda sekarang: " + saldo.getSaldo());
+        }
+    }
+
+    @Override
+    public void transfer() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Masukkan rekening tujuan: ");
+        String rekening = scanner.next();
+        System.out.print("Masukkan jumlah transfer: ");
+        double jumlah = scanner.nextDouble();
+
+        if (jumlah > saldo.getSaldo()) {
+            System.out.println("Saldo tidak mencukupi.");
+        } else {
+            saldo.setSaldo(saldo.getSaldo() - jumlah);
+            System.out.println("Transfer berhasil ke rekening " + rekening + ". Saldo Anda sekarang: " + saldo.getSaldo());
+        }
+    }
+
+    @Override
+    public void tambahSaldo() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Masukkan jumlah saldo yang ingin ditambahkan: ");
+        double jumlah = scanner.nextDouble();
+        saldo.setSaldo(saldo.getSaldo() + jumlah);
+        System.out.println("Saldo berhasil ditambahkan. Saldo Anda sekarang: " + saldo.getSaldo());
+    }
+}
+
+public class Main extends Transaksi {
+    public Main(Saldo saldo) {
+        super(saldo);
+    }
+
+    public static void main(String[] args) {
+        Saldo saldoAwal = new Saldo(1000.0);
+        Main atm = new Main(saldoAwal);
+
+        Scanner scanner = new Scanner(System.in);
+        int pilihan;
+
+        do {
+            System.out.println("\nMenu ATM:");
+            System.out.println("1. Cek Saldo");
+            System.out.println("2. Penarikan");
+            System.out.println("3. Transfer");
+            System.out.println("4. Tambah Saldo");
+            System.out.println("5. Keluar");
+            System.out.print("Pilih menu (1-5): ");
+            pilihan = scanner.nextInt();
+
+            switch (pilihan) {
+                case 1:
+                    atm.cekSaldo();
+                    break;
+                case 2:
+                    atm.penarikan();
+                    break;
+                case 3:
+                    atm.transfer();
+                    break;
+                case 4:
+                    atm.tambahSaldo();
+                    break;
+                case 5:
+                    System.out.println("Terima kasih. Sampai jumpa!");
+                    break;
+                default:
+                    System.out.println("Pilihan tidak valid. Silakan pilih kembali.");
+                    break;
+            }
+        } while (pilihan != 5);
+    }
+}
