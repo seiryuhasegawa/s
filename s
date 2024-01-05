@@ -305,3 +305,200 @@ public class Main extends Transaksi {
         } while (pilihan != 5);
     }
 }
+
+//perpus
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
+
+interface OperasiPerpustakaan {
+    void lihatBuku();
+    void pinjamBuku(String namaPeminjam, int nomorBuku);
+    void kembalikanBuku(String namaPengembali);
+    void perpanjangPeminjaman(String namaPeminjam, int nomorBuku);
+}
+
+class Buku {
+    private String judul;
+    private String pengarang;
+    private boolean tersedia;
+    private int durasiPeminjaman;
+
+    public Buku(String judul, String pengarang) {
+        this.judul = judul;
+        this.pengarang = pengarang;
+        this.tersedia = true;
+        this.durasiPeminjaman = 7; // Durasi peminjaman awal (misalnya, 7 hari)
+    }
+
+    public String getJudul() {
+        return judul;
+    }
+
+    public String getPengarang() {
+        return pengarang;
+    }
+
+    public boolean isTersedia() {
+        return tersedia;
+    }
+
+    public void setTersedia(boolean tersedia) {
+        this.tersedia = tersedia;
+    }
+
+    public int getDurasiPeminjaman() {
+        return durasiPeminjaman;
+    }
+
+    public void perpanjangPeminjaman() {
+        // Menambah durasi peminjaman
+        durasiPeminjaman += 7; // Menambah 7 hari setiap kali perpanjangan
+        System.out.println("Peminjaman buku " + judul + " diperpanjang. Durasi peminjaman sekarang: " + durasiPeminjaman + " hari.");
+    }
+}
+
+abstract class TransaksiPeminjaman implements OperasiPerpustakaan {
+    protected ArrayList<Buku> daftarBuku;
+
+    public TransaksiPeminjaman() {
+        this.daftarBuku = new ArrayList<>();
+    }
+
+    @Override
+    public void lihatBuku() {
+        System.out.println("Daftar Buku:");
+        for (int i = 0; i < daftarBuku.size(); i++) {
+            Buku buku = daftarBuku.get(i);
+            System.out.println((i + 1) + ". Judul: " + buku.getJudul() + ", Pengarang: " + buku.getPengarang() +
+                    ", Tersedia: " + (buku.isTersedia() ? "Ya" : "Tidak") +
+                    ", Durasi Peminjaman: " + buku.getDurasiPeminjaman() + " hari");
+        }
+    }
+
+    @Override
+    public void pinjamBuku(String namaPeminjam, int nomorBuku) {
+        if (daftarBuku.isEmpty()) {
+            System.out.println("Tidak ada buku yang tersedia.");
+            return;
+        }
+
+        if (nomorBuku < 1 || nomorBuku > daftarBuku.size()) {
+            System.out.println("Nomor buku tidak valid.");
+            return;
+        }
+
+        Buku buku = daftarBuku.get(nomorBuku - 1);
+
+        if (buku.isTersedia()) {
+            buku.setTersedia(false);
+            System.out.println(namaPeminjam + " meminjam buku " + buku.getJudul() + ".");
+        } else {
+            System.out.println("Buku sudah dipinjam.");
+        }
+    }
+
+    @Override
+    public void kembalikanBuku(String namaPengembali) {
+        if (daftarBuku.isEmpty()) {
+            System.out.println("Tidak ada buku yang dapat dikembalikan.");
+            return;
+        }
+
+        System.out.print("Masukkan nomor buku yang ingin dikembalikan: ");
+        Scanner scanner = new Scanner(System.in);
+        int nomorBuku = scanner.nextInt();
+
+        if (nomorBuku < 1 || nomorBuku > daftarBuku.size()) {
+            System.out.println("Nomor buku tidak valid.");
+            return;
+        }
+
+        Buku buku = daftarBuku.get(nomorBuku - 1);
+
+        if (!buku.isTersedia()) {
+            buku.setTersedia(true);
+            System.out.println(namaPengembali + " mengembalikan buku " + buku.getJudul() + ".");
+        } else {
+            System.out.println("Buku sudah tersedia.");
+        }
+    }
+
+    @Override
+    public void perpanjangPeminjaman(String namaPeminjam, int nomorBuku) {
+        if (daftarBuku.isEmpty()) {
+            System.out.println("Tidak ada buku yang dapat diperpanjang.");
+            return;
+        }
+
+        if (nomorBuku < 1 || nomorBuku > daftarBuku.size()) {
+            System.out.println("Nomor buku tidak valid.");
+            return;
+        }
+
+        Buku buku = daftarBuku.get(nomorBuku - 1);
+
+        if (!buku.isTersedia()) {
+            buku.perpanjangPeminjaman();
+        } else {
+            System.out.println("Buku tidak tersedia untuk diperpanjang.");
+        }
+    }
+}
+
+public class Main extends TransaksiPeminjaman {
+    public Main() {
+        // Menambahkan beberapa buku ke daftar buku perpustakaan
+        daftarBuku.add(new Buku("Java Programming", "John Doe"));
+        daftarBuku.add(new Buku("Python Basics", "Jane Smith"));
+    }
+
+    public static void main(String[] args) {
+        Main perpustakaan = new Main();
+
+        Scanner scanner = new Scanner(System.in);
+        int pilihan;
+
+        do {
+            System.out.println("\nMenu Perpustakaan:");
+            System.out.println("1. Lihat Buku");
+            System.out.println("2. Pinjam Buku");
+            System.out.println("3. Kembalikan Buku");
+            System.out.println("4. Perpanjang Peminjaman");
+            System.out.println("5. Keluar");
+            System.out.print("Pilih menu (1-5): ");
+            pilihan = scanner.nextInt();
+
+            switch (pilihan) {
+                case 1:
+                    perpustakaan.lihatBuku();
+                    break;
+                case 2:
+                    System.out.print("Masukkan nama peminjam: ");
+                    String namaPeminjam = scanner.next();
+                    System.out.print("Masukkan nomor buku yang ingin dipinjam: ");
+                    int nomorBukuPinjam = scanner.nextInt();
+                    perpustakaan.pinjamBuku(namaPeminjam, nomorBukuPinjam);
+                    break;
+                case 3:
+                    System.out.print("Masukkan nama pengembali: ");
+                    String namaPengembali = scanner.next();
+                    perpustakaan.kembalikanBuku(namaPengembali);
+                    break;
+                case 4:
+                    System.out.print("Masukkan nama peminjam: ");
+                    String namaPeminjamPerpanjang = scanner.next();
+                    System.out.print("Masukkan nomor buku yang ingin diperpanjang: ");
+                    int nomorBukuPerpanjang = scanner.nextInt();
+                    perpustakaan.perpanjangPeminjaman(namaPeminjamPerpanjang, nomorBukuPerpanjang);
+                    break;
+                case 5:
+                    System.out.println("Terima kasih. Sampai jumpa!");
+                    break;
+                default:
+                    System.out.println("Pilihan tidak valid. Silakan pilih kembali.");
+                    break;
+            }
+        } while (pilihan != 5);
+    }
+}
